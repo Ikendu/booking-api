@@ -4,8 +4,10 @@ const mongoose = require(`mongoose`)
 const User = require('./Models/Users')
 const dotenv = require(`dotenv`).config()
 const bcrypt = require(`bcryptjs`)
+const jwt = require(`jsonwebtoken`)
 
 const bcryptSalt = bcrypt.genSaltSync(10)
+const jwtSecrete = `jsklhs45ureyfkjvnlxkjfksldeoueupiujh487fddgjn5934jdfhjk59jfdjf945kj`
 
 const app = express()
 
@@ -30,6 +32,23 @@ app.post(`/register`, async (req, res) => {
   }
 })
 
+app.post(`/login`, async (req, res) => {
+  const { email, password } = req.body
+  const userDoc = User.findOne({ email })
+  if (userDoc) {
+    const passOk = bcrypt.compareSync(password, userDoc.password)
+    if (passOk) {
+      jwt.sign({ email: userDoc.email, id: userDoc._id }, jwtSecrete, {}, (err, token) => {
+        if (err) throw err
+        res.cookie(`token`, token).json(`Pass Ok`)
+      })
+    }
+    res.json(`User found`)
+  } else {
+    res.json(`User not found`)
+  }
+})
+
 app.get(`/users`, async (req, res) => {
   try {
     const users = await User.find()
@@ -39,10 +58,10 @@ app.get(`/users`, async (req, res) => {
   }
 })
 
-app.delete(`/delete/:id`, async (req, res) => {
-  let { id } = req.params
+app.delete(`/users/:id`, async (req, res) => {
   try {
-    const user = User.findByIdAndDelete(id)
+    let { id } = req.params
+    const user = await User.findByIdAndDelete(id)
     if (!user) res.status(404).json(`User do not exist `)
     res.status(200).json(`Deleted successfully`)
   } catch (error) {
