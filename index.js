@@ -30,6 +30,26 @@ app.post(`/register`, async (req, res) => {
   }
 })
 
+app.get(`/users`, async (req, res) => {
+  try {
+    const users = await User.find()
+    res.status(200).json(users)
+  } catch (error) {
+    res.status(500).json({ mes: error.message })
+  }
+})
+
+app.delete(`/delete/:id`, async (req, res) => {
+  let { id } = req.params
+  try {
+    const user = User.findByIdAndDelete(id)
+    if (!user) res.status(404).json(`User do not exist `)
+    res.status(200).json(`Deleted successfully`)
+  } catch (error) {
+    res.status(400).json({ mes: error.message })
+  }
+})
+
 const PORT = process.env.API_PORT || 4000
 mongoose
   .connect(process.env.MONGO_URL)
