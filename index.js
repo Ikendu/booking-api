@@ -11,7 +11,12 @@ const jwtSecrete = `jsklhs45ureyfkjvnlxkjfksldeoueupiujh487fddgjn5934jdfhjk59jfd
 
 const app = express()
 
-app.use(cors())
+app.use(
+  cors({
+    origin: `http://localhost:5173`,
+    credentials: true,
+  })
+)
 app.use(express.json())
 
 app.post(`/`, (req, res) => {
@@ -34,16 +39,18 @@ app.post(`/register`, async (req, res) => {
 
 app.post(`/login`, async (req, res) => {
   const { email, password } = req.body
-  const userDoc = User.findOne({ email })
+  const userDoc = await User.findOne({ email })
   if (userDoc) {
     const passOk = bcrypt.compareSync(password, userDoc.password)
     if (passOk) {
+      //generate a token of `emeail and password`
       jwt.sign({ email: userDoc.email, id: userDoc._id }, jwtSecrete, {}, (err, token) => {
         if (err) throw err
         res.cookie(`token`, token).json(`Pass Ok`)
       })
+    } else {
+      res.json(`Pass not ok `)
     }
-    res.json(`User found`)
   } else {
     res.json(`User not found`)
   }
