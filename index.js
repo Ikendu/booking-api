@@ -5,6 +5,7 @@ const User = require('./Models/Users')
 const dotenv = require(`dotenv`).config()
 const bcrypt = require(`bcryptjs`)
 const jwt = require(`jsonwebtoken`)
+const cookieParser = require(`cookie-parser`)
 
 const bcryptSalt = bcrypt.genSaltSync(10)
 const jwtSecrete = `jsklhs45ureyfkjvnlxkjfksldeoueupiujh487fddgjn5934jdfhjk59jfdjf945kj`
@@ -18,6 +19,7 @@ app.use(
   })
 )
 app.use(express.json())
+app.use(cookieParser())
 
 app.post(`/`, (req, res) => {
   res.send(`Welcome to API`)
@@ -37,6 +39,15 @@ app.post(`/register`, async (req, res) => {
   }
 })
 
+app.get(`/users`, async (req, res) => {
+  try {
+    const users = await User.find()
+    res.status(200).json(users)
+  } catch (error) {
+    res.status(500).json({ mes: error.message })
+  }
+})
+
 app.post(`/login`, async (req, res) => {
   const { email, password } = req.body
   const userDoc = await User.findOne({ email })
@@ -44,10 +55,15 @@ app.post(`/login`, async (req, res) => {
     const passOk = bcrypt.compareSync(password, userDoc.password)
     if (passOk) {
       //generate a token of `emeail and password`
-      jwt.sign({ email: userDoc.email, id: userDoc._id }, jwtSecrete, {}, (err, token) => {
-        if (err) throw err
-        res.cookie(`token`, token).json(`Pass Ok`)
-      })
+      jwt.sign(
+        { email: userDoc.email, id: userDoc._id, name: userDoc.name },
+        jwtSecrete,
+        {},
+        (err, token) => {
+          if (err) throw err
+          res.cookie(`token`, token).json(userDoc)
+        }
+      )
     } else {
       res.json(`Pass not ok `)
     }
@@ -56,12 +72,15 @@ app.post(`/login`, async (req, res) => {
   }
 })
 
-app.get(`/users`, async (req, res) => {
-  try {
-    const users = await User.find()
-    res.status(200).json(users)
-  } catch (error) {
-    res.status(500).json({ mes: error.message })
+app.get(`/profile`, (req, res) => {
+  const { token } = req.cookies
+  if (token) {
+    jwt.verify(token, jwtSecrete, {}, (error, user) => {
+      if (error) throw error
+      res.status(200).json(user)
+    })
+  } else {
+    res.json(null)
   }
 })
 
