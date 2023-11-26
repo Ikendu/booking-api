@@ -77,11 +77,16 @@ app.get(`/profile`, (req, res) => {
   if (token) {
     jwt.verify(token, jwtSecrete, {}, (error, user) => {
       if (error) throw error
+      //const {name, _id, email} = await User.findById(user.id)
       res.status(200).json(user)
     })
   } else {
     res.json(null)
   }
+})
+
+app.post(`/logout`, (req, res) => {
+  res.cookie('token', '').json(true)
 })
 
 app.delete(`/users/:id`, async (req, res) => {
