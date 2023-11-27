@@ -21,6 +21,8 @@ app.use(
 )
 app.use(express.json())
 app.use(cookieParser())
+//to be able to view images on the browser/client
+app.use('/uploads', express.static(__dirname + `/uploads`))
 
 app.post(`/`, (req, res) => {
   res.send(`Welcome to API`)
@@ -86,17 +88,6 @@ app.get(`/profile`, (req, res) => {
   }
 })
 
-app.post(`/upload-link`, async (req, res) => {
-  const { link } = req.body
-  const newName = Date.now() + `jpg`
-
-  await download.image({
-    url: link,
-    dest: __dirname + `/uploads/` + newName,
-  })
-  res.json({ dest })
-})
-
 app.post(`/logout`, (req, res) => {
   res.cookie('token', '').json(true)
 })
@@ -110,6 +101,17 @@ app.delete(`/users/:id`, async (req, res) => {
   } catch (error) {
     res.status(400).json({ mes: error.message })
   }
+})
+
+app.post(`/upload-link`, async (req, res) => {
+  const { link } = req.body
+  const newName = `photo` + Date.now() + `.jpg`
+
+  await download.image({
+    url: link,
+    dest: __dirname + `/uploads/` + newName,
+  })
+  res.json(newName)
 })
 
 const PORT = process.env.API_PORT || 4000
