@@ -6,6 +6,7 @@ const dotenv = require(`dotenv`).config()
 const bcrypt = require(`bcryptjs`)
 const jwt = require(`jsonwebtoken`)
 const cookieParser = require(`cookie-parser`)
+const download = require(`image-downloader`)
 
 const bcryptSalt = bcrypt.genSaltSync(10)
 const jwtSecrete = `jsklhs45ureyfkjvnlxkjfksldeoueupiujh487fddgjn5934jdfhjk59jfdjf945kj`
@@ -83,6 +84,17 @@ app.get(`/profile`, (req, res) => {
   } else {
     res.json(null)
   }
+})
+
+app.post(`/upload-link`, async (req, res) => {
+  const { link } = req.body
+  const newName = Date.now() + `jpg`
+
+  await download.image({
+    url: link,
+    dest: __dirname + `/uploads/` + newName,
+  })
+  res.json({ dest })
 })
 
 app.post(`/logout`, (req, res) => {
