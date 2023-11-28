@@ -7,6 +7,8 @@ const bcrypt = require(`bcryptjs`)
 const jwt = require(`jsonwebtoken`)
 const cookieParser = require(`cookie-parser`)
 const download = require(`image-downloader`)
+const multer = require(`multer`)
+const fs = require(`fs`)
 
 const bcryptSalt = bcrypt.genSaltSync(10)
 const jwtSecrete = `jsklhs45ureyfkjvnlxkjfksldeoueupiujh487fddgjn5934jdfhjk59jfdjf945kj`
@@ -112,6 +114,20 @@ app.post(`/upload-link`, async (req, res) => {
     dest: __dirname + `/uploads/` + newName,
   })
   res.json(newName)
+})
+
+const uploadMiddleware = multer({ dest: `uploads/` })
+app.post(`/uploads`, uploadMiddleware.array(`photos`, 100), (req, res) => {
+  let uploadedFiles = []
+  for (let i in req.files) {
+    const { path, originalname } = req.files[i]
+    const parts = originalname.split(`.`)
+    const ext = parts[parts.length - 1]
+    const newPath = path + `.` + ext
+    fs.renameSync(path, newPath)
+    uploadedFiles.push(newPath.replace(`uploads\\`, ``))
+  }
+  res.json(uploadedFiles)
 })
 
 const PORT = process.env.API_PORT || 4000
