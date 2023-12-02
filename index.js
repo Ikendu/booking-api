@@ -2,6 +2,7 @@ const express = require(`express`)
 const cors = require(`cors`)
 const mongoose = require(`mongoose`)
 const User = require('./Models/Users')
+const Place = require(`./Models/places`)
 const dotenv = require(`dotenv`).config()
 const bcrypt = require(`bcryptjs`)
 const jwt = require(`jsonwebtoken`)
@@ -128,6 +129,27 @@ app.post(`/uploads`, uploadMiddleware.array(`photos`, 100), (req, res) => {
     uploadedFiles.push(newPath.replace(`uploads\\`, ``))
   }
   res.json(uploadedFiles)
+})
+
+app.post(`/places`, (req, res) => {
+  const { title, address, addPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests } =
+    req.body
+  jwt.verify(token, jwtSecrete, {}, async (err, user) => {
+    if (err) throw err
+    const placeDoc = await Place.create({
+      owner: user.id,
+      title,
+      address,
+      addPhotos,
+      description,
+      perks,
+      extraInfo,
+      checkIn,
+      checkOut,
+      maxGuests,
+    })
+  })
+  res.status().json(placeDoc)
 })
 
 const PORT = process.env.API_PORT || 4000
