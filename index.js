@@ -132,6 +132,7 @@ app.post(`/uploads`, uploadMiddleware.array(`photos`, 100), (req, res) => {
 })
 
 app.post(`/places`, (req, res) => {
+  const { token } = req.cookies
   const { title, address, addPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests } =
     req.body
   jwt.verify(token, jwtSecrete, {}, async (err, user) => {
@@ -148,8 +149,17 @@ app.post(`/places`, (req, res) => {
       checkOut,
       maxGuests,
     })
+    res.status(200).json(placeDoc)
   })
-  res.status().json(placeDoc)
+})
+
+app.get(`/postlist`, async (req, res) => {
+  const { token } = req.cookies
+  jwt.verify(token, jwtSecrete, {}, async (err, user) => {
+    if (err) throw err
+    const allposts = await Place.find({ owner: user.id })
+    res.json(allposts)
+  })
 })
 
 const PORT = process.env.API_PORT || 4000
