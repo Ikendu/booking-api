@@ -162,8 +162,10 @@ app.get(`/placelist`, async (req, res) => {
   })
 })
 
-app.get(`/places/:id`, (req, res) => {
-  Post
+app.get(`/places/:id`, async (req, res) => {
+  const { id } = req.params
+  const userDoc = await Place.findById(id)
+  res.json(userDoc)
 })
 
 const PORT = process.env.API_PORT || 4000
