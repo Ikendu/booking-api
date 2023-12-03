@@ -182,9 +182,8 @@ app.put(`/places`, async (req, res) => {
     checkOut,
     maxGuests,
   } = req.body
-
-  const placeDoc = await Place.findById(id)
   jwt.verify(token, jwtSecrete, {}, async (err, user) => {
+    const placeDoc = await Place.findById(id)
     if (err) throw err
     if (placeDoc.owner.toString() === user.id) {
       placeDoc.set({
@@ -199,9 +198,9 @@ app.put(`/places`, async (req, res) => {
         maxGuests,
       })
       await placeDoc.save()
+      res.json(`ok`)
     }
   })
-  res.json(`ok`)
 })
 
 const PORT = process.env.API_PORT || 4000
