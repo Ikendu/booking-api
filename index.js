@@ -141,7 +141,7 @@ app.post(`/places`, (req, res) => {
       owner: user.id,
       title,
       address,
-      addPhotos,
+      photos: addPhotos,
       description,
       perks,
       extraInfo,
@@ -153,13 +153,17 @@ app.post(`/places`, (req, res) => {
   })
 })
 
-app.get(`/postlist`, async (req, res) => {
+app.get(`/placelist`, async (req, res) => {
   const { token } = req.cookies
   jwt.verify(token, jwtSecrete, {}, async (err, user) => {
     if (err) throw err
-    const allposts = await Place.find({ owner: user.id })
-    res.json(allposts)
+    const allplaces = await Place.find({ owner: user.id })
+    res.json(allplaces)
   })
+})
+
+app.get(`/places/:id`, (req, res) => {
+  Post
 })
 
 const PORT = process.env.API_PORT || 4000
