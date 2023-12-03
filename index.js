@@ -168,6 +168,42 @@ app.get(`/places/:id`, async (req, res) => {
   res.json(userDoc)
 })
 
+app.put(`/places`, async (req, res) => {
+  const { token } = req.cookies
+  const {
+    id,
+    title,
+    address,
+    addPhotos,
+    description,
+    perks,
+    extraInfo,
+    checkIn,
+    checkOut,
+    maxGuests,
+  } = req.body
+
+  const placeDoc = await Place.findById(id)
+  jwt.verify(token, jwtSecrete, {}, async (err, user) => {
+    if (err) throw err
+    if (placeDoc.owner.toString() === user.id) {
+      placeDoc.set({
+        title,
+        address,
+        photos: addPhotos,
+        description,
+        perks,
+        extraInfo,
+        checkIn,
+        checkOut,
+        maxGuests,
+      })
+      await placeDoc.save()
+    }
+  })
+  res.json(`ok`)
+})
+
 const PORT = process.env.API_PORT || 4000
 mongoose
   .connect(process.env.MONGO_URL)
