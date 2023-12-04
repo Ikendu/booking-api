@@ -133,8 +133,18 @@ app.post(`/uploads`, uploadMiddleware.array(`photos`, 100), (req, res) => {
 
 app.post(`/places`, (req, res) => {
   const { token } = req.cookies
-  const { title, address, addPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests } =
-    req.body
+  const {
+    title,
+    address,
+    addPhotos,
+    description,
+    perks,
+    extraInfo,
+    checkIn,
+    checkOut,
+    maxGuests,
+    price,
+  } = req.body
   jwt.verify(token, jwtSecrete, {}, async (err, user) => {
     if (err) throw err
     const placeDoc = await Place.create({
@@ -210,6 +220,18 @@ app.put(`/places`, async (req, res) => {
 app.get(`/places`, async (req, res) => {
   const allPlaces = await Place.find()
   res.json(allPlaces)
+})
+
+app.get(`/place-details/:id`, async (req, res) => {
+  const { id } = req.params
+  // const { token } = req.cookies
+
+  // jwt.verify(token, jwtSecrete, {}, (err, user) => {
+  //   if (err) throw err
+  //   const user
+  // })
+  const placeDetails = await Place.findById(id)
+  res.json(placeDetails)
 })
 
 const PORT = process.env.API_PORT || 4000
