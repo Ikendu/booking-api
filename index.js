@@ -3,6 +3,7 @@ const cors = require(`cors`)
 const mongoose = require(`mongoose`)
 const User = require('./Models/Users')
 const Place = require(`./Models/places`)
+const Booking = require(`./Models/booking`)
 const dotenv = require(`dotenv`).config()
 const bcrypt = require(`bcryptjs`)
 const jwt = require(`jsonwebtoken`)
@@ -224,14 +225,23 @@ app.get(`/places`, async (req, res) => {
 
 app.get(`/place-details/:id`, async (req, res) => {
   const { id } = req.params
-  // const { token } = req.cookies
-
-  // jwt.verify(token, jwtSecrete, {}, (err, user) => {
-  //   if (err) throw err
-  //   const user
-  // })
   const placeDetails = await Place.findById(id)
   res.json(placeDetails)
+})
+
+app.post(`/booking`, async (req, res) => {
+  const { place, checkIn, checkOut, maxGuests, name, phone, price, amount } = req.body
+  const newBooking = await Booking.create({
+    place,
+    checkIn,
+    checkOut,
+    maxGuests,
+    name,
+    phone,
+    price,
+    amount,
+  })
+  res.json(newBooking)
 })
 
 const PORT = process.env.API_PORT || 4000
