@@ -244,6 +244,12 @@ app.post(`/booking`, async (req, res) => {
   res.json(newBooking)
 })
 
+app.get(`/booking`, async (req, res) => {
+  const { id } = req.params
+  const userBookings = await Booking.findById(id)
+  res.json(userBookings)
+})
+
 const PORT = process.env.API_PORT || 4000
 mongoose
   .connect(process.env.MONGO_URL)
