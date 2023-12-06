@@ -245,14 +245,22 @@ app.post(`/booking`, async (req, res) => {
 })
 
 app.get(`/booking`, async (req, res) => {
+  const {token} = req.cookies
   const { id } = req.params
+  jwt.verify(token, jwtSecrete, (err, userInfo) => {
+    if (err) throw err
+    if(userInfo.id === id)
+
+
+  })
+  
   const userBookings = await Booking.findById(id)
   res.json(userBookings)
 })
 
 const PORT = process.env.API_PORT || 4000
 mongoose
-  .connect(process.env.MONGO_URL)
+  .connect(process.env.MONGO_URL) 
   .then(() => {
     console.log(`databsae connected`)
     app.listen(PORT, () => console.log(`Listening on port 4000`))
