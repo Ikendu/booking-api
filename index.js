@@ -169,7 +169,7 @@ app.get(`/user-places`, async (req, res) => {
   const { token } = req.cookies
   jwt.verify(token, jwtSecrete, {}, async (err, user) => {
     if (err) throw err
-    const allplaces = await Place.find({ owner: user.id })
+    const allplaces = await Place.find({ owner: user.id }).sort({ createdAt: -1 })
     res.json(allplaces)
   })
 })
@@ -219,7 +219,7 @@ app.put(`/places`, async (req, res) => {
 
 //get all places
 app.get(`/places`, async (req, res) => {
-  const allPlaces = await Place.find()
+  const allPlaces = await Place.find().sort({ createdAt: -1 })
   res.json(allPlaces)
 })
 
@@ -245,22 +245,20 @@ app.post(`/booking`, async (req, res) => {
 })
 
 app.get(`/booking`, async (req, res) => {
-  const {token} = req.cookies
+  const { token } = req.cookies
   const { id } = req.params
   jwt.verify(token, jwtSecrete, (err, userInfo) => {
     if (err) throw err
-    if(userInfo.id === id)
-
-
+    //if(userInfo.id === id)
   })
-  
+
   const userBookings = await Booking.findById(id)
   res.json(userBookings)
 })
 
 const PORT = process.env.API_PORT || 4000
 mongoose
-  .connect(process.env.MONGO_URL) 
+  .connect(process.env.MONGO_URL)
   .then(() => {
     console.log(`databsae connected`)
     app.listen(PORT, () => console.log(`Listening on port 4000`))
