@@ -2,7 +2,7 @@ const { Schema, model } = require('mongoose')
 
 const bookingSchema = new Schema(
   {
-    placeId: { type: Schema.Types.ObjectId, required: true },
+    placeId: { type: Schema.Types.ObjectId, required: true, ref: `Places` },
     userId: { type: Schema.Types.ObjectId, required: true },
     checkIn: { type: Date, required: true },
     checkOut: { type: Date, required: true },
@@ -10,6 +10,7 @@ const bookingSchema = new Schema(
     name: { type: String, required: true },
     phone: { type: String, required: true },
     price: Number,
+    days: Number,
     amount: Number,
   },
   { timestamps: true }

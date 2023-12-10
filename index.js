@@ -232,7 +232,7 @@ app.get(`/place-details/:id`, async (req, res) => {
 app.post(`/booking`, async (req, res) => {
   const { token } = req.cookies
   jwt.verify(token, jwtSecrete, {}, async (err, userData) => {
-    const { placeId, checkIn, checkOut, maxGuests, name, phone, price, amount } = req.body
+    const { placeId, checkIn, checkOut, maxGuests, name, phone, price, amount, days } = req.body
     const newBooking = await Booking.create({
       userId: userData.id,
       placeId,
@@ -242,6 +242,7 @@ app.post(`/booking`, async (req, res) => {
       name,
       phone,
       price,
+      days,
       amount,
     })
     res.json(newBooking)
@@ -260,14 +261,14 @@ app.post(`/booking`, async (req, res) => {
 //   res.json(userBookings)
 // })
 
-app.get(`bookings`, async (req, res) => {
+app.get(`/bookings`, async (req, res) => {
   const { token } = req.cookies
   jwt.verify(token, jwtSecrete, {}, async (err, userData) => {
     if (err) throw err
 
-    const userBookings = await Booking.find({ userId: userData.id })
+    const userBookings = await Booking.find({ userId: userData.id }).populate(`placeId`)
+    res.json(userBookings)
   })
-  res.json(userBookings)
 })
 
 const PORT = process.env.API_PORT || 4000
