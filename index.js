@@ -230,29 +230,43 @@ app.get(`/place-details/:id`, async (req, res) => {
 })
 
 app.post(`/booking`, async (req, res) => {
-  const { place, checkIn, checkOut, maxGuests, name, phone, price, amount } = req.body
-  const newBooking = await Booking.create({
-    place,
-    checkIn,
-    checkOut,
-    maxGuests,
-    name,
-    phone,
-    price,
-    amount,
+  const { token } = req.cookies
+  jwt.verify(token, jwtSecrete, {}, async (err, userData) => {
+    const { placeId, checkIn, checkOut, maxGuests, name, phone, price, amount } = req.body
+    const newBooking = await Booking.create({
+      userId: userData.id,
+      placeId,
+      checkIn,
+      checkOut,
+      maxGuests,
+      name,
+      phone,
+      price,
+      amount,
+    })
+    res.json(newBooking)
   })
-  res.json(newBooking)
 })
 
-app.get(`/booking`, async (req, res) => {
-  const { token } = req.cookies
-  const { id } = req.params
-  jwt.verify(token, jwtSecrete, (err, userInfo) => {
-    if (err) throw err
-    //if(userInfo.id === id)
-  })
+// app.get(`/booking`, async (req, res) => {
+//   const { token } = req.cookies
+//   const { id } = req.params
+//   jwt.verify(token, jwtSecrete, (err, userInfo) => {
+//     if (err) throw err
+//     //if(userInfo.id === id)
+//   })
 
-  const userBookings = await Booking.findById(id)
+//   const userBookings = await Booking.findById(id)
+//   res.json(userBookings)
+// })
+
+app.get(`bookings`, async (req, res) => {
+  const { token } = req.cookies
+  jwt.verify(token, jwtSecrete, {}, async (err, userData) => {
+    if (err) throw err
+
+    const userBookings = await Booking.find({ userId: userData.id })
+  })
   res.json(userBookings)
 })
 
